@@ -11,10 +11,6 @@ import documentRoutes from "./routes/document.routes.js";
 // Initialize Express app
 const app = express();
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 // CORS Configuration - Allow specific origins
 const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS?.split(",") || [
@@ -26,6 +22,13 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
 
 // Health Check Endpoint (No DB required)
 app.get("/health", (req, res) => {
