@@ -61,14 +61,16 @@ app.get("/api/status", (req, res) => {
 });
 
 // API Routes (protected by DB connection check middleware)
-const dbConnectMiddleware = (req, res, next) => {
-  if (!dbConnected) {
-    return res.status(503).json({
-      error: "Database not connected. Please try again later.",
-      status: "service_unavailable",
-    });
+const dbConnectMiddleware = async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      return next(); // Already connected
+    }
+    await connectDB();
+    next();
+  } catch (error) {
+    return res.status(503).json({ error: "Database unavailable" });
   }
-  next();
 };
 
 app.use("/api/auth", dbConnectMiddleware, userRoutes);
